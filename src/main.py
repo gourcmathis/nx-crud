@@ -4,10 +4,16 @@ from .db.connection import dbusers
 from .serializers.user_schema import users_serializer, single_user_serializer
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.crud import films
+
 app = FastAPI()
 origins = [
     "*",
 ]
+
+app.include_router(films.router)
+# app.include_router(users.router)
+
 
 app.add_middleware(
     CORSMiddleware,
