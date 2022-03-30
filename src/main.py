@@ -4,7 +4,7 @@ from .db.connection import dbusers
 from .serializers.user_schema import users_serializer, single_user_serializer
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.crud import films
+from src.crud.endpoints import films
 
 app = FastAPI()
 origins = [

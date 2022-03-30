@@ -8,8 +8,8 @@ from typing import Optional, List
 from pymongo import MongoClient
 from dotenv import load_dotenv 
 
-from ..db.connection import dbfilms
-from ..serializers.film_schema import films_serializer, single_film_serializer
+from ...db.connection import dbfilms
+from ...serializers.film_schema import films_serializer, single_film_serializer
 
 API_PATH = "localhost:5000/api/v1"
 
