@@ -1,10 +1,12 @@
 from urllib import response
 from fastapi import FastAPI,APIRouter, Depends
-from .db.connection import dbusers
-from .serializers.user_schema import users_serializer, single_user_serializer
+# from .db.connection import user_collection
+# from .serializers.user_schema import users_serializer, single_user_serializer
 from fastapi.middleware.cors import CORSMiddleware
+# from .crud.user import create_user, check_free_username_and_email
+# from .models.user_model import UserInCreate, UserInDB
 
-from src.crud.endpoints import films
+from src.crud.endpoints import films, users
 
 app = FastAPI()
 origins = [
@@ -12,7 +14,7 @@ origins = [
 ]
 
 app.include_router(films.router)
-# app.include_router(users.router)
+app.include_router(users.router)
 
 
 app.add_middleware(
@@ -28,8 +30,3 @@ app.add_middleware(
 @app.get("/")
 async def home():
     return "add success Mamiwata!"
-
-@app.get("/users")
-async def users():
-    users = dbusers.find({})
-    return users_serializer(users)
