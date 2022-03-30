@@ -5,8 +5,8 @@ def single_film_serializer(film) -> dict:
         "imdb_id": film["id"],
         "title": film["title"],
         "image": film["image"],
-        "description": film["description"],
-        "genres": film["genres"]
+        "description": film["description"] if "description" in film else "",
+        "genres": film["genres"] if "genres" in film else [],
     }
 
 def films_serializer(films) -> list:
