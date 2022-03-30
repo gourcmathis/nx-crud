@@ -1,8 +1,10 @@
 from urllib import response
 from fastapi import FastAPI,APIRouter, Depends
-from .db.connection import dbusers
+from .db.connection import user_collection
 from .serializers.user_schema import users_serializer, single_user_serializer
 from fastapi.middleware.cors import CORSMiddleware
+from .crud.user import create_user, check_free_username_and_email
+from .models.user_model import UserInCreate, UserInDB
 
 app = FastAPI()
 origins = [
@@ -25,5 +27,11 @@ async def home():
 
 @app.get("/users")
 async def users():
-    users = dbusers.find({})
+    users = user_collection.find({})
     return users_serializer(users)
+
+@app.post("/sign_up")
+async def sign_up(user: UserInCreate):
+    await check_free_username_and_email(user.username,user.email)
+    usr = await create_user(user)
+    return usr
