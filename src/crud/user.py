@@ -23,7 +23,7 @@ async def create_user(user: UserInCreate) -> UserInDB:
     usr = UserInDB(**user.dict())
     usr.change_password(user.password)
     
-    row = await user_collection.insert_one(usr.dict())
+    row = user_collection.insert_one(usr.dict())
 
     return usr
 
