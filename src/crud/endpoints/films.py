@@ -11,6 +11,7 @@ import requests_async as requests
 
 from ...db.connection import dbfilms
 from ...serializers.film_schema import films_serializer, single_film_serializer
+from ...models.film_model import FilmBase
 
 """
 Callbacks for CRUD - IMDB API operations
@@ -21,11 +22,9 @@ API_PATH = "http://imdb:5000"
 callback_router = APIRouter()
 
 @callback_router.get(
-    "{$callback_url}/api/v1/get_films/"
+    "{$callback_url}/api/v1/"
 )
-@callback_router.post(
-    "{$callback_url}/"
-)
+
 async def postFilmsToDB():
     client = MongoClient(os.getenv("DATABASE_URL_CONNECTION"))
     db = client.films
@@ -46,7 +45,7 @@ router = APIRouter(
 # List all films in the database.
 # If the database is empty, then we call the callback to populate it.
 @router.get(
-    "/", response_description="List films from the DB", callbacks=callback_router.routes
+    "/", response_description="List films from the database", response_model=FilmBase, callbacks=callback_router.routes, tags=["Show all films"],
 )
 async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     films = dbfilms.find({})
@@ -54,10 +53,41 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
 
     # if the database is empty, we need to call the API to get some films
     if len(jsonFilms) == 0:
-        response = await requests.get(f"{callback_url}/api/v1/get_films/")
+        response = await requests.get(f"{callback_url}/api/v1/get_250/")
         dbfilms.insert_many(response.json())
         return JSONResponse(
             status_code=response.status_code,
             content=response.json(),
         )
     return jsonFilms
+
+
+# Get a single film by its ID from netflexdb.
+@router.get(
+    "/id={imdb_id}", response_description="Get a single film from mongodb", response_model=FilmBase, callbacks=callback_router.routes, tags=["Get a film by id from netflexdb"],
+)
+async def get_movie(imdb_id: str):
+    film_req = dbfilms.find_one({"id": imdb_id})
+    if film_req is None:
+        raise HTTPException(status_code=404, detail="Film not found")
+    film = single_film_serializer(film_req)
+    
+    # if film doesnt have trailer, make a call to the API to get it
+    if film["trailer"] == "":
+        response = await requests.get(f"{API_PATH}/api/v1/get_trailer/{imdb_id}")
+        if response.status_code == 200:
+            film["trailer"] = response.json()
+            dbfilms.update_one({"id": imdb_id}, {"$set": {"trailer": response.json()}})
+
+    return (film)
+
+# Search films by title from the database
+@router.get(
+    "/search/title={title}", response_description="Search films by title from the database", response_model=list[FilmBase], tags=["Search films by title"],
+)
+async def search_movie(title: str):
+    films_req = dbfilms.find({"title": {"$regex": title, "$options": "i"}})
+    films = films_serializer(films_req)
+    if (len(films) == 0):
+        raise HTTPException(status_code=404, detail="Film not found")
+    return films
