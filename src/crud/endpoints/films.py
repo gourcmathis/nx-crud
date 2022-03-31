@@ -11,6 +11,7 @@ import requests_async as requests
 
 from ...db.connection import dbfilms
 from ...serializers.film_schema import films_serializer, single_film_serializer
+from ...models.film_model import FilmBase
 
 """
 Callbacks for CRUD - IMDB API operations
@@ -21,11 +22,9 @@ API_PATH = "http://imdb:5000"
 callback_router = APIRouter()
 
 @callback_router.get(
-    "{$callback_url}/api/v1/get_250/"
+    "{$callback_url}/api/v1/"
 )
-@callback_router.post(
-    "{$callback_url}/"
-)
+
 async def postFilmsToDB():
     client = MongoClient(os.getenv("DATABASE_URL_CONNECTION"))
     db = client.films
@@ -46,7 +45,7 @@ router = APIRouter(
 # List all films in the database.
 # If the database is empty, then we call the callback to populate it.
 @router.get(
-    "/", response_description="List films from the database", callbacks=callback_router.routes, tags=["Films"]
+    "/", response_description="List films from the database", response_model=FilmBase, callbacks=callback_router.routes, tags=["Films"],
 )
 async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     films = dbfilms.find({})
@@ -61,3 +60,22 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
             content=response.json(),
         )
     return jsonFilms
+
+
+@router.get(
+    "/id={imdb_id}", response_description="Get a single film from mongodb", response_model=FilmBase, callbacks=callback_router.routes, tags=["Get a film by id"],
+)
+async def get_movie(imdb_id: str):
+    film_req = dbfilms.find_one({"id": imdb_id})
+    if film_req is None:
+        raise HTTPException(status_code=404, detail="Film not found")
+    film = single_film_serializer(film_req)
+    
+    # if film doesnt have trailer, make a call to the API to get it
+    if film["trailer"] == "":
+        response = await requests.get(f"{API_PATH}/api/v1/get_trailer/{imdb_id}")
+        if response.status_code == 200:
+            film["trailer"] = response.json()
+            dbfilms.update_one({"id": imdb_id}, {"$set": {"trailer": response.json()}})
+
+    return (film)

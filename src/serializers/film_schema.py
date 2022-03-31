@@ -10,7 +10,7 @@ def single_film_serializer(film) -> dict:
         "genres": film["genreList"] if "genreList" in film else [],
         "trailer": film["trailer"] if "trailer" in film else "",
         "rating": film["imDbRating"] if "imDbRating" in film else "",
-        "runtime": film["runtime"] if "runtime" in film else "",
+        "runtime": film["runtimeStr"] if "runtimeStr" in film else "",
     }
 
 def films_serializer(films) -> list:
