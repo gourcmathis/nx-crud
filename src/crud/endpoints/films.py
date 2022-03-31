@@ -46,7 +46,7 @@ router = APIRouter(
 # List all films in the database.
 # If the database is empty, then we call the callback to populate it.
 @router.get(
-    "/", response_description="List films from the DB", callbacks=callback_router.routes
+    "/", response_description="List films from the database", callbacks=callback_router.routes, tags=["Films"]
 )
 async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     films = dbfilms.find({})
