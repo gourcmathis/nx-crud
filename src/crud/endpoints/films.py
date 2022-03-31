@@ -21,7 +21,7 @@ API_PATH = "http://imdb:5000"
 callback_router = APIRouter()
 
 @callback_router.get(
-    "{$callback_url}/api/v1/get_films/"
+    "{$callback_url}/api/v1/get_250/"
 )
 @callback_router.post(
     "{$callback_url}/"
@@ -54,7 +54,7 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
 
     # if the database is empty, we need to call the API to get some films
     if len(jsonFilms) == 0:
-        response = await requests.get(f"{callback_url}/api/v1/get_films/")
+        response = await requests.get(f"{callback_url}/api/v1/get_250/")
         dbfilms.insert_many(response.json())
         return JSONResponse(
             status_code=response.status_code,

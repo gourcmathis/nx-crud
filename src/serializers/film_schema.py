@@ -4,9 +4,12 @@ def single_film_serializer(film) -> dict:
         "id": str(film["_id"]),
         "imdb_id": film["id"],
         "title": film["title"],
-        "image": film["image"],
-        "description": film["description"] if "description" in film else "",
-        "genres": film["genres"] if "genres" in film else [],
+        "year": film["description"] if "description" in film else "",
+        "image": film["image"] if "image" in film else "",
+        "description": film["plot"] if "plot" in film else "",
+        "genres": film["genreList"] if "genreList" in film else [],
+        "trailer": film["trailer"] if "trailer" in film else "",
+        "rating": film["imDbRating"] if "imDbRating" in film else "",
     }
 
 def films_serializer(films) -> list:
