@@ -2,42 +2,62 @@ import os
 from fastapi import FastAPI, Body, HTTPException, status, APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, AnyHttpUrl
 from bson import ObjectId
 from typing import Optional, List
 from pymongo import MongoClient
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
+import requests_async as requests
 
 from ...db.connection import dbfilms
 from ...serializers.film_schema import films_serializer, single_film_serializer
 
-API_PATH = "localhost:5000/api/v1"
+"""
+Callbacks for CRUD - IMDB API operations
+"""
+
+API_PATH = "http://imdb:5000"
+
+callback_router = APIRouter()
+
+@callback_router.get(
+    "{$callback_url}/api/v1/get_films/"
+)
+@callback_router.post(
+    "{$callback_url}/"
+)
+async def postFilmsToDB():
+    client = MongoClient(os.getenv("DATABASE_URL_CONNECTION"))
+    db = client.films
+    films = await dbfilms.get_films()
+    for film in films:
+        await dbfilms.post_film(film)
+    return JSONResponse(status_code=status.HTTP_200_OK)
 
 
-class FilmModel(BaseModel):
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
-        schema_extra = {
-            "example": {
-                "imdb_id": "tt1160419",
-                "title": "Dune",
-                "image": "https://imdb-api.com/images/original/MV5BN2FjNmEyNWMtYzM0ZS00NjIyLTg5YzYtYThlMGVjNzE1OGViXkEyXkFqcGdeQXVyMTkxNjUyNQ@@._V1_Ratio0.6837_AL_.jpg",
-                "description": "(2021)",
-                "genres": "Action, Adventure, Drama"
-            }
-        }
-
+"""
+Routers section
+"""
 
 router = APIRouter(
     prefix="/films",
 )
 
-
+# List all films in the database.
+# If the database is empty, then we call the callback to populate it.
 @router.get(
-    "/", response_description="List all films", #response_model=List[FilmModel]
+    "/", response_description="List films from the DB", callbacks=callback_router.routes
 )
-async def list_movies():
+async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     films = dbfilms.find({})
-    return films_serializer(films)
+    jsonFilms = films_serializer(films)
+
+    # if the database is empty, we need to call the API to get some films
+    if len(jsonFilms) == 0:
+        response = await requests.get(f"{callback_url}/api/v1/get_films/")
+        dbfilms.insert_many(response.json())
+        return JSONResponse(
+            status_code=response.status_code,
+            content=response.json(),
+        )
+    return jsonFilms

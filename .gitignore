@@ -1,8 +1,8 @@
 src/__pycache__
 src/crud/__pycache__
-src/security/__pycache__
 src/crud/endpoints/__pycache__
 src/db/__pycache__
 src/models/__pycache__
+src/security/__pycache__
 src/serializers/__pycache__
 venv/
