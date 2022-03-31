@@ -88,4 +88,6 @@ async def get_movie(imdb_id: str):
 async def search_movie(title: str):
     films_req = dbfilms.find({"title": {"$regex": title, "$options": "i"}})
     films = films_serializer(films_req)
+    if (len(films) == 0):
+        raise HTTPException(status_code=404, detail="Film not found")
     return films
