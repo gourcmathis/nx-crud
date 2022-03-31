@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from ..models.user_model import UserInDB,UserInCreate, verify_password
-from ..security.security import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
+from ...models.user_model import UserInDB, UserInCreate, verify_password
+from ...security.security import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
 from typing import Optional
 from bson.objectid import ObjectId
-from ..db.connection import user_collection, db
-from ..serializers.user_schema import users_serializer, single_user_serializer
+from ...db.connection import user_collection, db
+from ...serializers.user_schema import users_serializer, single_user_serializer
 from typing import Optional
 from pydantic import EmailStr
 from starlette.exceptions import HTTPException
@@ -27,9 +27,9 @@ async def create_user(user: UserInCreate) -> UserInDB:
 
     return usr
 
-async def get_user(username: str):
+async def get_user(username: str) -> UserInDB:
     """
-        username: Optional[str], name unique of user
+        username: str, name unique of user
         description: get user by username
     """
     row = user_collection.find_one({"username": username})
@@ -39,7 +39,7 @@ async def get_user(username: str):
 
 async def get_user_by_email(email: EmailStr):
     """
-        email: Optional[EmailStr], email unique of user
+        email: EmailStr, email unique of user
         description: get user by email
     """
     row = user_collection.find_one({"email": email})

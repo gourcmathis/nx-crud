@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from ...db.connection import user_collection
 from ...serializers.user_schema import users_serializer, single_user_serializer
-from ...crud.user import create_user, check_free_username_and_email, create_access_token, get_user_by_email
+from ...crud.helpers.user_helper import create_user, check_free_username_and_email, create_access_token, get_user_by_email
 from ...models.user_model import UserInCreate, UserInDB, UserInResponse, UserToken, UserInLogin
 from datetime import timedelta
 from ...security.security import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -39,6 +39,7 @@ async def login(user: UserInLogin):
     status_code=HTTP_201_CREATED,
 )
 async def sign_up(user: UserInCreate):
+    
     await check_free_username_and_email(user.username,user.email)
     usr = await create_user(user)
 

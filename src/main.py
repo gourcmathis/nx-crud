@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # from .crud.user import create_user, check_free_username_and_email
 # from .models.user_model import UserInCreate, UserInDB
 
-from src.crud.endpoints import films, users
+from src.crud.endpoints import films, users, groups
 
 app = FastAPI()
 origins = [
@@ -15,6 +15,7 @@ origins = [
 
 app.include_router(films.router)
 app.include_router(users.router)
+app.include_router(groups.router)
 
 
 app.add_middleware(
