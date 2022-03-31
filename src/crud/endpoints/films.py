@@ -45,7 +45,7 @@ router = APIRouter(
 # List all films in the database.
 # If the database is empty, then we call the callback to populate it.
 @router.get(
-    "/", response_description="List films from the database", response_model=FilmBase, callbacks=callback_router.routes, tags=["Films"],
+    "/", response_description="List films from the database", response_model=FilmBase, callbacks=callback_router.routes, tags=["Show all films"],
 )
 async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     films = dbfilms.find({})
@@ -62,8 +62,9 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     return jsonFilms
 
 
+# Get a single film by its ID from netflexdb.
 @router.get(
-    "/id={imdb_id}", response_description="Get a single film from mongodb", response_model=FilmBase, callbacks=callback_router.routes, tags=["Get a film by id"],
+    "/id={imdb_id}", response_description="Get a single film from mongodb", response_model=FilmBase, callbacks=callback_router.routes, tags=["Get a film by id from netflexdb"],
 )
 async def get_movie(imdb_id: str):
     film_req = dbfilms.find_one({"id": imdb_id})
@@ -79,3 +80,12 @@ async def get_movie(imdb_id: str):
             dbfilms.update_one({"id": imdb_id}, {"$set": {"trailer": response.json()}})
 
     return (film)
+
+# Search films by title from the database
+@router.get(
+    "/search/title={title}", response_description="Search films by title from the database", response_model=list[FilmBase], tags=["Search films by title"],
+)
+async def search_movie(title: str):
+    films_req = dbfilms.find({"title": {"$regex": title, "$options": "i"}})
+    films = films_serializer(films_req)
+    return films
