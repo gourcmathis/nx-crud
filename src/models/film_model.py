@@ -10,4 +10,4 @@ class FilmBase(BaseModel):
     image: Optional[str] = ""
     trailer: Optional[str] = ""
     rating: Optional[str] = ""
-
+    runtime: Optional[str] = ""
