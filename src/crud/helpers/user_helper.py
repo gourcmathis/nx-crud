@@ -4,14 +4,11 @@ from ...models.user_model import UserInDB, UserInCreate, verify_password
 from ...security.security import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
 from typing import Optional
 from bson.objectid import ObjectId
-from ...db.connection import user_collection, db
-from ...serializers.user_schema import users_serializer, single_user_serializer
+from ...db.connection import user_collection
 from typing import Optional
 from pydantic import EmailStr
 from starlette.exceptions import HTTPException
 from starlette.status import (
-    HTTP_403_FORBIDDEN,
-    HTTP_404_NOT_FOUND,
     HTTP_422_UNPROCESSABLE_ENTITY
 )
 

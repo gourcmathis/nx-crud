@@ -33,7 +33,7 @@ class UserInCreate(RWModel):
     password: str
 
 class UserToken(UserBase):
-    token: str
+    token: Optional[str]
     def create_group(self, group: Group) -> Group:
         """
             group: Group, group for creation

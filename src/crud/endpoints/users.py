@@ -47,3 +47,4 @@ async def sign_up(user: UserInCreate):
     token = await create_access_token(data={"username": user.username}, expires_delta=access_token_expires)
 
     return UserInResponse(user=UserToken(**usr.dict(), token=token))
+

@@ -83,7 +83,7 @@ async def get_movie(imdb_id: str):
 
 # Search films by title from the database
 @router.get(
-    "/search/title={title}", response_description="Search films by title from the database", response_model=list[FilmBase], tags=["Search films by title"],
+    "/search/title={title}", response_description="Search films by title from the database", response_model=List[FilmBase], tags=["Search films by title"],
 )
 async def search_movie(title: str):
     films_req = dbfilms.find({"title": {"$regex": title, "$options": "i"}})

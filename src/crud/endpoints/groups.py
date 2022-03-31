@@ -3,10 +3,10 @@ from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from ...db.connection import user_collection, group_collection
-from ...serializers.group_schema import groups_serializer
+from ...serializers.group_schema import groups_serializer, single_group_serializer
 from ...crud.helpers.user_helper import create_access_token
-from ...models.user_model import UserToken
-
+from ...models.user_model import UserInDB, UserToken
+from ..helpers.group_helper import add_member, check_member_already_in_group, check_groupname_exist_already
 from ...models.group_model import Group
 from datetime import timedelta
 from ...security.security import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -21,14 +21,15 @@ async def groups():
     return groups_serializer(groups)
 
 
-@router.post("/create",
+@router.post("/create/username={username}",
     response_model=Group,
     tags=["Group"],
     status_code=HTTP_201_CREATED,
 )
 async def create(username:str, group: Group):
     usr = user_collection.find_one({"username":username})
-    
+    await check_groupname_exist_already(group.groupname)
+
     if usr:
         user = UserToken(**usr)
         grp  = user.create_group(group)
@@ -39,6 +40,18 @@ async def create(username:str, group: Group):
     else:
         raise HTTPException(
                 status_code=HTTP_400_BAD_REQUEST,
-                detail="Création de groupe impossible: username of creator incorrecte",
+                detail="Création de groupe impossible",
             )
+
+@router.post("/addmember/username={username}/groupname={groupname}",
+    response_model=Group,
+    tags=["Group"]
+)
+async def addmember(username:str, groupname: str) -> Group:
+    await check_member_already_in_group(username, groupname)
+
+    grp  = await add_member(username, groupname)
+        # access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
+        # token = await create_access_token(data={"groupname": group.groupname}, expires_delta=access_token_expires)
+    return grp
 
