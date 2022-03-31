@@ -27,12 +27,14 @@ class UserInCreate(RWModel):
     username: str
     email: EmailStr
     password: str
+
+class UserToken(UserBase):
+    token: str
+
+class UserInResponse(RWModel):
+    user: UserToken
+
+class UserInLogin(RWModel):
+    email: EmailStr
+    password: str
     
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
