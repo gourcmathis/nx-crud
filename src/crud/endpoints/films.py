@@ -45,7 +45,7 @@ router = APIRouter(
 # List all films in the database.
 # If the database is empty, then we call the callback to populate it.
 @router.get(
-    "/", response_description="List films from the database", response_model=FilmBase, callbacks=callback_router.routes, tags=["Show all films"],
+    "/", response_description="List films from the database", response_model=list[FilmBase], callbacks=callback_router.routes, tags=["Show all films"],
 )
 async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     films = dbfilms.find({})
@@ -60,6 +60,7 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
             content=response.json(),
         )
     return jsonFilms
+
 
 
 # Get a single film by its ID from netflexdb.

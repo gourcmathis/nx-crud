@@ -5,4 +5,5 @@ src/db/__pycache__
 src/models/__pycache__
 src/security/__pycache__
 src/serializers/__pycache__
+src/crud/helpers/__pycache__/
 venv/
