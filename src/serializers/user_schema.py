@@ -6,6 +6,7 @@ def single_user_serializer(user) -> dict:
         "username": user["username"],
         "email": user["email"],
         "password": user["password"],
+        "already_seen": user["already_seen"] if "already_seen" in user else [],
     }
 
 

@@ -12,12 +12,6 @@ app = FastAPI()
 origins = [
     "*",
 ]
-
-app.include_router(films.router)
-app.include_router(users.router)
-app.include_router(groups.router)
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -25,6 +19,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(films.router)
+app.include_router(users.router)
+app.include_router(groups.router)
+
+
+
 
 # app.add_event_handler("startup",connect_to_mongo)
 

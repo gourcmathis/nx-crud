@@ -5,10 +5,11 @@ from fastapi.encoders import jsonable_encoder
 from ...db.connection import user_collection, group_collection
 from ...serializers.group_schema import groups_serializer, single_group_serializer
 from ...crud.helpers.user_helper import create_access_token
-from ...models.user_model import UserInDB, UserToken
-from ..helpers.group_helper import add_member, check_member_already_in_group, check_groupname_exist_already
+from ...models.user_model import UserBase, UserInDB, UserToken
+from ..helpers.group_helper import add_member, check_member_already_in_group, check_groupname_exist_already, get_all_members_group
 from ...models.group_model import Group
 from datetime import timedelta
+from typing import List
 from ...security.security import ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(
@@ -55,3 +56,12 @@ async def addmember(username:str, groupname: str) -> Group:
         # token = await create_access_token(data={"groupname": group.groupname}, expires_delta=access_token_expires)
     return grp
 
+@router.get("/allmembers/groupname={groupname}",
+    response_model=List[UserBase],
+    tags=["Group"]
+)
+async def get_members(groupname: str) -> List[UserBase]:
+    all_members = await get_all_members_group(groupname)
+    # access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
+    # token = await create_access_token(data={"groupname": group.groupname}, expires_delta=access_token_expires)
+    return all_members

@@ -11,7 +11,7 @@ pymongo
 python-dotenv
 uvicorn
 bcrypt
-dateuil
+
 passlib
 python-jose
 email-validator

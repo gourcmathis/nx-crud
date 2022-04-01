@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from ...db.connection import user_collection
 from ...serializers.user_schema import users_serializer, single_user_serializer
-from ...crud.helpers.user_helper import create_user, check_free_username_and_email, create_access_token, get_user_by_email
+from ...crud.helpers.user_helper import create_user, check_free_username_and_email, create_access_token, get_user_by_email, token_response
 from ...models.user_model import UserInCreate, UserInDB, UserInResponse, UserToken, UserInLogin
 from datetime import timedelta
 from ...security.security import ACCESS_TOKEN_EXPIRE_MINUTES
@@ -13,7 +13,7 @@ router = APIRouter(
     prefix="/users",
 )
 
-@router.get("/")
+@router.get("/", tags=["user"],)
 async def users():
     users = user_collection.find({})
     return users_serializer(users)
@@ -44,7 +44,7 @@ async def sign_up(user: UserInCreate):
     usr = await create_user(user)
 
     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
-    token = await create_access_token(data={"username": user.username}, expires_delta=access_token_expires)
+    token = await create_access_token(data={"username": user.username, "email": user.email}, expires_delta=access_token_expires)
 
     return UserInResponse(user=UserToken(**usr.dict(), token=token))
 

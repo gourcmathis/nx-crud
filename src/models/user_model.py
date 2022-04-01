@@ -1,5 +1,5 @@
 from .rwmodel import RWModel, DBModelMixin
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, EmailStr, AnyUrl, Field
 from ..security.security import verify_password, generate_salt, get_password_hash, pwd_context
 from ..db.connection import user_collection,group_collection
@@ -10,6 +10,7 @@ class UserBase(RWModel):
     email: EmailStr
     bio: Optional[str] = ""
     image: Optional[AnyUrl] = None
+    already_seen: List[Optional[str]] = []
 
 
 class UserInDB(UserBase):

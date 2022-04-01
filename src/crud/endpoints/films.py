@@ -11,7 +11,9 @@ import requests_async as requests
 
 from ...db.connection import dbfilms
 from ...serializers.film_schema import films_serializer, single_film_serializer
+from ...serializers.user_schema import single_user_serializer
 from ...models.film_model import FilmBase
+from ..helpers.film_helper import add_film_already_seen, UserToken
 
 """
 Callbacks for CRUD - IMDB API operations
@@ -87,7 +89,17 @@ async def get_movie(imdb_id: str):
 )
 async def search_movie(title: str):
     films_req = dbfilms.find({"title": {"$regex": title, "$options": "i"}})
-    films = films_serializer(films_req)
+    films =  films_serializer(films_req)
     if (len(films) == 0):
         raise HTTPException(status_code=404, detail="Film not found")
     return films
+
+@router.post(
+    "/id={imdb_id}/as_already_seen/by={username}", response_description="add film alredy seen by user in his list already seen", 
+    tags=["add film as already seen by user"],
+)
+async def film_already_seen(imdb_id: str, username: str) -> UserToken:
+    user =  await add_film_already_seen(imdb_id, username)
+    if user:
+        # user = single_user_serializer(user)
+        return user

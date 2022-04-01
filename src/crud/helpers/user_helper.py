@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
-from ...models.user_model import UserInDB, UserInCreate, verify_password
+from ...models.user_model import UserInDB, UserInCreate,UserBase, verify_password
+from ...models.film_model import FilmBase
 from ...security.security import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
 from typing import Optional
+import time
 from bson.objectid import ObjectId
-from ...db.connection import user_collection
-from typing import Optional
+from ...db.connection import user_collection, dbfilms
 from pydantic import EmailStr
 from starlette.exceptions import HTTPException
 from starlette.status import (
@@ -78,6 +79,20 @@ async def create_access_token(data: dict, expires_delta: Optional[timedelta] = N
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+async def decode_jwt_token(token: str):
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_token if decoded_token["exp"] >= time.time() else None
+    except:
+        return {}
+
+
+async def token_response(token: str):
+    return {
+        "access_token": token
+    }
+
 
 
 

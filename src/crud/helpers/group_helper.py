@@ -1,6 +1,6 @@
 # from datetime import datetime, timedelta
 # from jose import JWTError, jwt
-from ...models.user_model import UserInDB
+from ...models.user_model import UserInDB, UserBase
 from ...models.group_model import Group
 # from ..security.security import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
 from typing import Optional, List
@@ -58,11 +58,26 @@ async def add_member(username: str,groupname: str) -> Group:
         exist_group = group_collection.find_one({"groupname": groupname})
         exist_user = user_collection.find_one({"username": username})
         if exist_group and exist_user:
-            group = Group(**exist_group)
+            # group = Group(**exist_group)
             user  = UserInDB(**exist_user)
             exist_group.listmember.append(user.username)
             row = group_collection.update_one({ "groupname": groupname },{"$set": {"listmember": exist_group.listmember}})
             return exist_group
+
+
+async def get_all_members_group(groupname: str) -> List[UserBase]:
+    exist_group = group_collection.find_one({"groupname":groupname})
+    
+    if exist_group:
+        group = Group(**exist_group)
+        # list_username_member = group.listmember.copy()
+        list_users = []
+        for username in group.listmember:
+            user_bdd = user_collection.find_one({"username":username})
+            user = UserBase(**user_bdd)
+            list_users.append(user)
+        return list_users
+
 
 # async def get_listmember_group_by_groupname(groupname: str) -> List[UserInDB]:
 #     """
