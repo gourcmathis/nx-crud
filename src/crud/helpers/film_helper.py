@@ -3,13 +3,13 @@ from ...models.film_model import FilmBase
 # from ...security.security import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
 from typing import Optional
 from ...db.connection import user_collection, dbfilms
-from ...models.user_model import UserInDB, UserToken, verify_password
-from .user_helper import get_user, token_response
-from ...serializers.user_schema import single_user_serializer
+from ...models.user_model import UserToken
+from .user_helper import get_user
+# from ...serializers.user_schema import single_user_serializer
 from starlette.exceptions import HTTPException
-from starlette.status import (
-    HTTP_422_UNPROCESSABLE_ENTITY
-)
+# from starlette.status import (
+#     HTTP_422_UNPROCESSABLE_ENTITY
+# )
 
 
 

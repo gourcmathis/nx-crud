@@ -1,13 +1,14 @@
-from fastapi import FastAPI, Body, HTTPException, status, APIRouter
+from fastapi import FastAPI, Body, HTTPException, status, APIRouter, Depends
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from ...db.connection import user_collection
-from ...serializers.user_schema import users_serializer, single_user_serializer
-from ...crud.helpers.user_helper import create_user, check_free_username_and_email, create_access_token, get_user_by_email, token_response
-from ...models.user_model import UserInCreate, UserInDB, UserInResponse, UserToken, UserInLogin
+from ...serializers.user_schema import users_serializer
+from ...crud.helpers.user_helper import create_user, check_free_username_and_email, get_user_by_email
+from ...security.security import create_access_token, JWTBearer, ACCESS_TOKEN_EXPIRE_MINUTES
+from ...models.user_model import UserInCreate, UserInResponse, UserToken, UserInLogin
 from datetime import timedelta
-from ...security.security import ACCESS_TOKEN_EXPIRE_MINUTES
+# from app.auth.auth_handler import signJWT
 
 router = APIRouter(
     prefix="/users",
@@ -40,7 +41,7 @@ async def login(user: UserInLogin):
 )
 async def sign_up(user: UserInCreate):
     
-    await check_free_username_and_email(user.username,user.email)
+    check_free_username_and_email(user.username,user.email)
     usr = await create_user(user)
 
     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
