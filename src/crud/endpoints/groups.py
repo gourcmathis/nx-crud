@@ -26,6 +26,7 @@ async def groups():
     response_model=Group,
     tags=["Group"],
     status_code=HTTP_201_CREATED,
+    dependencies=[Depends(JWTBearer())]
 )
 async def create(username:str, group: Group):
     usr = user_collection.find_one({"username":username})
@@ -46,7 +47,8 @@ async def create(username:str, group: Group):
 
 @router.post("/addmember/username={username}/groupname={groupname}",
     response_model=Group,
-    tags=["Group"]
+    tags=["Group"],
+    dependencies=[Depends(JWTBearer())]
 )
 async def addmember(username:str, groupname: str) -> Group:
     await check_member_already_in_group(username, groupname)
@@ -58,7 +60,8 @@ async def addmember(username:str, groupname: str) -> Group:
 
 @router.get("/allmembers/groupname={groupname}",
     response_model=List[UserBase],
-    tags=["Group"]
+    tags=["Group"],
+    dependencies=[Depends(JWTBearer())]
 )
 async def get_members(groupname: str) -> List[UserBase]:
     all_members = await get_all_members_group(groupname)

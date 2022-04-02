@@ -9,7 +9,7 @@ class UserBase(RWModel):
     username: str
     email: EmailStr
     bio: Optional[str] = ""
-    image: Optional[AnyUrl] = None
+    image: Optional[str] = None
     already_seen: List[Optional[str]] = []
 
 
