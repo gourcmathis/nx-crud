@@ -7,6 +7,8 @@ def single_user_serializer(user) -> dict:
         "email": user["email"],
         "password": user["password"],
         "already_seen": user["already_seen"] if "already_seen" in user else [],
+        "favorite_films": user["favorite_films"] if "favorite_films" in user else [],
+        "favorite_genres": user["favorite_genres"] if "favorite_genres" in user else []
     }
 
 

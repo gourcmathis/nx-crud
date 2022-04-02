@@ -11,18 +11,20 @@ class UserBase(RWModel):
     bio: Optional[str] = ""
     image: Optional[str] = None
     already_seen: List[Optional[str]] = []
+    favorite_films: List[Optional[str]] = []
+    favorite_genres: List[Optional[str]] = []
 
 
 class UserInDB(UserBase):
     salt: str = ""
     password: str = ""
 
-    def check_password(self, password: str):
-        return verify_password(self.salt + password, self.password)
+    async def check_password(self, password: str):
+        return await verify_password(self.salt + password, self.password)
     
-    def change_password(self, password: str):
-        self.salt = generate_salt()
-        self.password = get_password_hash(self.salt + password)
+    async def change_password(self, password: str):
+        self.salt = await generate_salt()
+        self.password = await get_password_hash(self.salt + password)
 
 
 class UserInCreate(RWModel):

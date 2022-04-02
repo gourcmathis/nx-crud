@@ -7,6 +7,7 @@ def single_group_serializer(group) -> dict:
         "description": group["description"] if "description" in group else "",
         "image": group["image"] if "image" in group else "",
         "listmember": group["listmember"] if "listmember" in group else [],
+        "aready_seen_by_allmember": group["aready_seen_by_allmember"] if "aready_seen_by_allmember" in group else [],
     }
 
 def groups_serializer(groups) -> list:
