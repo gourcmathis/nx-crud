@@ -54,38 +54,54 @@ async def check_member_already_in_group(username: str,groupname: str):
         )
 
 async def add_member(username: str,groupname: str) -> Group:
+        """
+        username: sername of user to add
+        groupname: str, name unique of group
+        description: add member in group by his username
+        return: Group updated
+        """
 
         exist_group = group_collection.find_one({"groupname": groupname})
         exist_user = user_collection.find_one({"username": username})
+
         if exist_group and exist_user:
-            # group = Group(**exist_group)
             user  = UserInDB(**exist_user)
-            exist_group.listmember.append(user.username)
-            row = group_collection.update_one({ "groupname": groupname },{"$set": {"listmember": exist_group.listmember}})
-            return exist_group
+            group = Group(**exist_group)
+            group.listmember.append(user.username)
+            for film in user.already_seen:
+                group.aready_seen_by_allmember.append(film)
+            group_collection.update_one({ "groupname": groupname },{"$set": {"listmember": group.listmember}})
+            group_collection.update_one({ "groupname": groupname },{"$set": {"aready_seen_by_allmember": group.aready_seen_by_allmember}})
+            return group
+
+# async def get_user():
+
+async def add_many_member(list_username: List[str], groupname: str) -> Group:
+    """
+        list_username: list of username to add in group
+        groupname: str, name unique of group
+        description: add many member in group by their usernames
+        return: Group updated
+    """
+    for username in list_username:
+       group = await add_member(username, groupname)
+    
+    return group
 
 
 async def get_all_members_group(groupname: str) -> List[UserBase]:
+    """
+        groupname: str, name unique of group
+        description: get all member of group by groupname
+        return: Group updated
+    """
     exist_group = group_collection.find_one({"groupname":groupname})
     
     if exist_group:
         group = Group(**exist_group)
-        # list_username_member = group.listmember.copy()
         list_users = []
         for username in group.listmember:
             user_bdd = user_collection.find_one({"username":username})
             user = UserBase(**user_bdd)
             list_users.append(user)
         return list_users
-
-
-# async def get_listmember_group_by_groupname(groupname: str) -> List[UserInDB]:
-#     """
-#         groupname: str, name unique of user
-#         description: get group by groupname
-#     """
-#     list_
-#     row = group_collection.find_one({"groupname": groupname})
-
-#     if row:
-#         return Group(**row)

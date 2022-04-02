@@ -9,3 +9,4 @@ class Group(RWModel):
     image: Optional[str] = ""
     listmember: List[Optional[str]] = []
     aready_seen_by_allmember: List[Optional[str]] = []
+    

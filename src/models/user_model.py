@@ -46,7 +46,7 @@ class UserToken(UserBase):
         group.listmember.append(self.username)
         grp = Group(**group.dict())
         
-        row = group_collection.insert_one(grp.dict())
+        group_collection.insert_one(grp.dict())
 
         return grp
 

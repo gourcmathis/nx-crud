@@ -1,5 +1,6 @@
 
 from ...models.user_model import UserInDB, UserInCreate,UserToken, UserBase
+from ...models.group_model import Group
 from ...models.token_model import TokenPayload
 from ...serializers.user_schema import single_user_serializer
 from ...security.security import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
@@ -9,7 +10,7 @@ from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
 from bson.objectid import ObjectId
-from ...db.connection import user_collection, dbfilms
+from ...db.connection import user_collection, dbfilms, group_collection
 from pydantic import EmailStr
 from jose import JWTError, jwt
 from typing import Optional, List
@@ -60,6 +61,16 @@ async def get_user_by_email(email: str) -> UserBase:
             )
     else:   
         return UserInDB(**row)
+
+# async def get_all_group_of_user(username: str):
+#     exist_user = user_collection.find_one({"username":username})
+#     if exist_user != None:
+#         user = UserInDB(**exist_user)
+        
+#         groups = group_collection.find({"listmember": { "$elemMatch": { user.username: {"$exists":"true"} } } })
+#         print(groups)
+        # if groups != None:
+        #     return groups
 
 
 async def check_free_username_and_email(
@@ -132,14 +143,6 @@ class OAuth2PasswordBearerCookie(OAuth2):
 
 security = OAuth2PasswordBearerCookie(token_url="/login")
 
-def _get_authorization_token(authorization: str = Header(...)):
-    token_prefix, token = authorization.split(" ")
-    if token_prefix != JWT_TOKEN_PREFIX:
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Invalid authorization type"
-        )
-
-    return token
 
 async def get_current_user(token: str = Depends(security)):
     credentials_exception = HTTPException(
