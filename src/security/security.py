@@ -3,7 +3,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Request, HTTPException
 from datetime import datetime, timedelta
-from jose import JWTError, jwt
+from jose import jwt
 from typing import Optional
 import time
 from dotenv import load_dotenv

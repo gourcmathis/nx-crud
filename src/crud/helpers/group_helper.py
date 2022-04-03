@@ -1,12 +1,10 @@
 
 from ...models.user_model import UserInDB, UserBase
 from ...models.group_model import Group
-from typing import Optional, List
+from typing import List
 from ...db.connection import user_collection, group_collection
-from pydantic import EmailStr
 from starlette.exceptions import HTTPException
 from starlette.status import (
-    HTTP_403_FORBIDDEN,
     HTTP_404_NOT_FOUND,
     HTTP_422_UNPROCESSABLE_ENTITY,
 )

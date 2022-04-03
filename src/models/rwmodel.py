@@ -1,9 +1,6 @@
 from datetime import datetime, timezone
 from pydantic import BaseConfig, BaseModel
 from typing import Optional
-# from dateutil import tz
-
-# FRA = tz.gettz('Europe/Paris')
 
 class RWModel(BaseModel):
     class Config(BaseConfig):

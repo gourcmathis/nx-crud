@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, AnyUrl, Field
+from pydantic import BaseModel
 
 class FilmBase(BaseModel):
     imdb_id: str
