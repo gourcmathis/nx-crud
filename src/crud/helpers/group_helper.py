@@ -93,7 +93,7 @@ async def get_all_members_group(groupname: str) -> List[UserBase]:
     """
         groupname: str, name unique of group
         description: get all member of group by groupname
-        return: Group updated
+        return: list of group
     """
     exist_group = group_collection.find_one({"groupname":groupname})
     

@@ -62,15 +62,22 @@ async def get_user_by_email(email: str) -> UserBase:
     else:   
         return UserInDB(**row)
 
-# async def get_all_group_of_user(username: str):
-#     exist_user = user_collection.find_one({"username":username})
-#     if exist_user != None:
-#         user = UserInDB(**exist_user)
-        
-#         groups = group_collection.find({"listmember": { "$elemMatch": { user.username: {"$exists":"true"} } } })
-#         print(groups)
-        # if groups != None:
-        #     return groups
+async def get_all_group_of_user(username: str) -> List:
+    """
+        username: Optional[str], name unique of user
+        email: Optional[EmailStr], email unique of user
+        description: verify if a user exist in database with the username or/and email given
+    """
+    list_group = []
+    exist_user = user_collection.find_one({"username":username})
+
+    if exist_user != None:
+        user = UserInDB(**exist_user)
+        for groupname in user.list_group:
+            group = group_collection.find_one({"groupname": groupname})
+            grp = Group(**group)
+            list_group.append(grp)
+        return list_group
 
 
 async def check_free_username_and_email(

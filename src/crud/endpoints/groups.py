@@ -8,6 +8,7 @@ from ...serializers.group_schema import groups_serializer, single_group_serializ
 from ...security.security import create_access_token
 from ...models.user_model import UserBase, UserInDB, UserToken
 from ..helpers.group_helper import add_member, check_member_already_in_group, check_groupname_exist_already, get_all_members_group
+from ..helpers.user_helper import get_all_group_of_user
 from ...models.group_model import Group
 from datetime import timedelta
 from typing import List
@@ -66,7 +67,18 @@ async def addmember(username:str, groupname: str) -> Group:
     tags=["Group"],
     # dependencies=[Depends(JWTBearer())]
 )
-async def get_members(groupname: str) -> List[UserBase]:
+async def get_all_members(groupname: str) -> List[UserBase]:
     all_members = await get_all_members_group(groupname)
 
     return all_members
+
+
+@router.get("/allgroups/of={username}",
+    response_model=List[Group],
+    tags=["Group"],
+    # dependencies=[Depends(JWTBearer())]
+)
+async def get_all_groups(username: str) -> List[Group]:
+    all_groups = await get_all_group_of_user(username)
+
+    return all_groups
