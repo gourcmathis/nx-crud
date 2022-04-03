@@ -27,9 +27,9 @@ async def whoami(current_user: UserBase = Depends(get_current_user)):
     return current_user 
 
 @router.post("/login", 
-response_model=UserInResponse, 
+# response_model=UserInResponse, 
 tags=["authentication"],)
-async def login(user: OAuth2PasswordRequestForm = Depends(UserInLogin)):
+async def login(user: UserInLogin):
 
     usr = await get_user_by_email(user.email)
 
@@ -63,7 +63,7 @@ async def login(user: OAuth2PasswordRequestForm = Depends(UserInLogin)):
     tags=["authentication"],
     status_code=HTTP_201_CREATED,
 )
-async def sign_up(user: OAuth2PasswordRequestForm = Depends(UserInCreate)):
+async def sign_up(user: UserInCreate):
     
     await check_free_username_and_email(user.username,user.email)
     usr = await create_user(user)
