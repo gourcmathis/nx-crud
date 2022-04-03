@@ -21,11 +21,11 @@ class UserInDB(UserBase):
     password: str = ""
 
     async def check_password(self, password: str):
-        return await verify_password(self.salt + password, self.password)
+        return verify_password(self.salt + password, self.password)
     
     async def change_password(self, password: str):
-        self.salt = await generate_salt()
-        self.password = await get_password_hash(self.salt + password)
+        self.salt = generate_salt()
+        self.password =  get_password_hash(self.salt + password)
 
 
 class UserInCreate(RWModel):
