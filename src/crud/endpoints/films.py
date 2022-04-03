@@ -49,7 +49,7 @@ router = APIRouter(
 @router.get(
     "/", response_description="List films from the database", 
     response_model=List[FilmBase], callbacks=callback_router.routes, 
-    tags=["Show all films"],
+    tags=["Films"],
 )
 async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     films = dbfilms.find({})
@@ -57,14 +57,12 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
 
     # if the database is empty, we need to call the API to get some films
     if len(jsonFilms) == 0:
-        response = await requests.get(f"{callback_url}/api/v1/get_250/")
+        response = await requests.get(f"{callback_url}/api/v1/get_100/")
         serializer = imdb_films_serializer(response.json())
-        print(serializer)
         dbfilms.insert_many(serializer)
         return JSONResponse(
             status_code=response.status_code,
             content=response.json(),
-
         )
     return jsonFilms
 
@@ -72,7 +70,7 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
 
 # Get a single film by its ID from netflexdb.
 @router.get(
-    "/id={imdb_id}", response_description="Get a single film from mongodb", response_model=FilmBase, callbacks=callback_router.routes, tags=["Get a film by id from netflexdb"],
+    "/id={imdb_id}", response_description="Get a single film from mongodb", response_model=FilmBase, callbacks=callback_router.routes, tags=["Films"],
 )
 async def get_movie(imdb_id: str):
     film_req = dbfilms.find_one({"imdb_id": imdb_id})
@@ -91,7 +89,7 @@ async def get_movie(imdb_id: str):
 
 # Search films by title from the database
 @router.get(
-    "/search/title={title}", response_description="Search films by title from the database", response_model=List[FilmBase], tags=["Search films by title"],
+    "/search/title={title}", response_description="Search films by title from the database", response_model=List[FilmBase], tags=["Films"],
 )
 async def search_movie(title: str):
     films_req = dbfilms.find({"title": {"$regex": title, "$options": "i"}})
@@ -101,7 +99,7 @@ async def search_movie(title: str):
     return films
 
 @router.post(
-    "/id={imdb_id}/as_already_seen/by={username}", response_description="add film alredy seen by user in his list already seen", 
+    "/id={imdb_id}/as_already_seen/by={username}", response_description="Films", 
     tags=["add film as already seen by user"],
 )
 async def film_already_seen(imdb_id: str, username: str) -> UserToken:
@@ -112,7 +110,7 @@ async def film_already_seen(imdb_id: str, username: str) -> UserToken:
 
 # Get a single film by its ID from netflexdb.
 @router.get(
-    "/genres/id={imdb_id}", response_description="Get genre from a film", tags=["Get a film's genres"],
+    "/genres/id={imdb_id}", response_description="Get genre from a film", tags=["Films"],
 )
 async def get_movie(imdb_id: str):
     film_req = dbfilms.find_one({"id": imdb_id})
