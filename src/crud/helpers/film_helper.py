@@ -22,6 +22,7 @@ async def add_film_already_seen(imdb_id: str, username: str):
         exist_user.already_seen.append(imdb_id)
 
         user_collection.update_one({"username":username},{"$set":{"already_seen":exist_user.already_seen}})
+        
         user = user_collection.find_one({"username":username})
         user = UserToken(**user)
         # return single_user_serializer(user)

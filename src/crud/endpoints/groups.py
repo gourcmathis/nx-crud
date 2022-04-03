@@ -31,11 +31,16 @@ async def groups():
 )
 async def create(username:str, group: OAuth2PasswordRequestForm = Depends(Group)) -> Group:
     usr = user_collection.find_one({"username":username})
-    await check_groupname_exist_already(group.groupname)
 
     if usr != None:
         user = UserToken(**usr)
+        await check_groupname_exist_already(group.groupname)
         grp  = user.create_group(group)
+
+    # add all movies seen by user who create the group
+        for film in user.already_seen:
+            grp.aready_seen_by_allmember.append(film)
+        group_collection.update_one({ "groupname": grp.groupname },{"$set": {"aready_seen_by_allmember": grp.aready_seen_by_allmember}})
 
         return grp
     else:

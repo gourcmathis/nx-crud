@@ -68,13 +68,13 @@ async def add_member(username: str,groupname: str) -> Group:
             user  = UserInDB(**exist_user)
             group = Group(**exist_group)
             group.listmember.append(user.username)
+            user.list_group.append(group.groupname)
             for film in user.already_seen:
                 group.aready_seen_by_allmember.append(film)
             group_collection.update_one({ "groupname": groupname },{"$set": {"listmember": group.listmember}})
             group_collection.update_one({ "groupname": groupname },{"$set": {"aready_seen_by_allmember": group.aready_seen_by_allmember}})
+            user_collection.update_one({"username":username}, {"$set": {"list_group":user.list_group}})
             return group
-
-# async def get_user():
 
 async def add_many_member(list_username: List[str], groupname: str) -> Group:
     """

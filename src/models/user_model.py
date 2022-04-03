@@ -13,6 +13,7 @@ class UserBase(RWModel):
     already_seen: List[Optional[str]] = []
     favorite_films: List[Optional[str]] = []
     favorite_genres: List[Optional[str]] = []
+    list_group: List[Optional[str]] = []
 
 
 class UserInDB(UserBase):
@@ -44,6 +45,7 @@ class UserToken(UserBase):
         """
         group.author=self.username
         group.listmember.append(self.username)
+        self.list_group.append(group)
         grp = Group(**group.dict())
         
         group_collection.insert_one(grp.dict())
