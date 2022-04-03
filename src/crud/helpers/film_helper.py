@@ -5,7 +5,7 @@ from ...db.connection import user_collection, dbfilms, group_collection
 from ...models.user_model import UserToken
 from .user_helper import get_user#, get_all_group_of_user
 from starlette.exceptions import HTTPException
-from ...serializers.film_schema import single_film_serializer
+from ...serializers.film_schema import netflex_single_film_serializer
 
 
 
@@ -33,7 +33,7 @@ async def get_films_genres(imdb_id:str):
     film_req = dbfilms.find_one({"id": imdb_id})
     if film_req is None:
         raise HTTPException(status_code=404, detail="Film not found")
-    film = single_film_serializer(film_req)
+    film = netflex_single_film_serializer(film_req)
     
     genres = []
     for genre in range(len(film["genres"])):
