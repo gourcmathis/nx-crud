@@ -68,6 +68,7 @@ class UserToken(UserBase):
 
 class UserInResponse(RWModel):
     user: UserToken
+    message: Optional[str]
 
 class UserInLogin(RWModel):
     email: EmailStr

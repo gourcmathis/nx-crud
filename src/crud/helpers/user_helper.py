@@ -30,7 +30,7 @@ async def create_user(user: UserInCreate) -> UserInDB:
         description: insert a user in database
     """
     usr = UserInDB(**user.dict())
-    usr.change_password(user.password)
+    await usr.change_password(user.password)
     
     row = user_collection.insert_one(usr.dict())
 
@@ -55,12 +55,13 @@ async def get_user_by_email(email: str) -> UserInDB:
         description: get user by email
     """
     row = user_collection.find_one({"email": email})
-    if row == None:
+    if row != None:
+        return UserInDB(**row)
+        
+    else:   
         HTTPException(
                 status_code=404, detail=" user not found by email!"
             )
-    else:   
-        return UserInDB(**row)
 
 async def get_all_group_of_user(username: str) -> List:
     """

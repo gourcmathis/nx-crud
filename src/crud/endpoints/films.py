@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Body, HTTPException, status, APIRouter
+from fastapi import FastAPI, Body, HTTPException, status, APIRouter, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, AnyHttpUrl
@@ -8,7 +8,7 @@ from typing import Optional, List
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import requests_async as requests
-
+from ...security.security import JWTBearer
 from ...db.connection import dbfilms
 from ...serializers.film_schema import films_serializer, single_film_serializer
 from ...serializers.user_schema import single_user_serializer
@@ -47,7 +47,9 @@ router = APIRouter(
 # List all films in the database.
 # If the database is empty, then we call the callback to populate it.
 @router.get(
-    "/", response_description="List films from the database", response_model=List[FilmBase], callbacks=callback_router.routes, tags=["Show all films"],
+    "/", response_description="List films from the database", 
+    response_model=List[FilmBase], callbacks=callback_router.routes, 
+    tags=["Show all films"],
 )
 async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     films = dbfilms.find({})

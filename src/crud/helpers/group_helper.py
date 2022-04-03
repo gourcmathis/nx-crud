@@ -79,7 +79,13 @@ async def add_member(username: str,groupname: str) -> Group:
             
             #update list films already seen in groupe
             for film_seen in user.already_seen:
-                group.aready_seen_by_allmember.append(film_seen)
+                if film_seen in group.aready_seen_by_allmember:
+                    raise HTTPException(
+                        status_code=HTTP_404_NOT_FOUND,
+                        detail="Film déjà dans la liste: déjà vue par les membres du groupe!",
+                    )
+                else:
+                    group.aready_seen_by_allmember.append(film_seen)
             
             #update list favorites movies in groupe
             for film in user.favorite_films:
@@ -106,9 +112,9 @@ async def add_member(username: str,groupname: str) -> Group:
             return group
         else:
             raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND,
-            detail="Groupe ou utilisateur inexistant!",
-    )
+                status_code=HTTP_404_NOT_FOUND,
+                detail="Groupe ou utilisateur inexistant!",
+            )
 
 async def add_many_member(list_username: List[str], groupname: str) -> Group:
     """

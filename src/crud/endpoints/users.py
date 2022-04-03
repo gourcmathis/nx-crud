@@ -27,7 +27,7 @@ async def whoami(current_user: UserBase = Depends(get_current_user)):
     return current_user 
 
 @router.post("/login", 
-# response_model=UserInResponse, 
+response_model=UserInResponse, 
 tags=["authentication"],)
 async def login(user: UserInLogin):
 
@@ -35,14 +35,16 @@ async def login(user: UserInLogin):
 
     if not usr or not usr.check_password(user.password):
         raise HTTPException(
-            status_code=400, detail=" email ou password incorrecte"
+            status_code=400
+            , detail=" email ou password incorrecte"
         )
+    
 
     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
     token = await create_access_token(data={"username": usr.username, "email": usr.email,"already_seen": usr.already_seen}, expires_delta=access_token_expires)
 
     token = jsonable_encoder(token)
-    content = {"username":usr.username,"email":usr.email,"token":token,"message": "You've successfully logged in. Welcome back!"}
+    content = {"username":usr.username,"email":usr.email,"token":token,"message": "Vous êtes connécté avec succès. Bon retour!"}
     response = JSONResponse(content=content)
     response.set_cookie(
         "Authorization",
