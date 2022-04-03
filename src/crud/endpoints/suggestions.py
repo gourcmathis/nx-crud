@@ -16,4 +16,4 @@ router = APIRouter(
 
 @router.post("/for{groupname}", tags=["Group"]) #, dependencies=[Depends(JWTBearer())])
 async def make_suggestions(groupname: str):
-    pass
+    return suggestions(groupname)

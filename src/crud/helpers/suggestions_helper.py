@@ -6,6 +6,7 @@ from ...models.group_model import Group
 from ...models.film_model import FilmBase
 from typing import Optional, List
 from ...db.connection import user_collection, group_collection, dbfilms
+from ...serializers.film_schema import films_serializer
 from pydantic import EmailStr
 from starlette.exceptions import HTTPException
 from starlette.status import (
