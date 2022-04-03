@@ -107,6 +107,10 @@ async def check_free_username_and_email(
 
 
 async def get_films_already_seen_by_user(username: str) -> List[str]:
+    """
+        username: str, name unique of user
+        description: get movies already seen by user with username = {username}
+    """
     exist_user = user_collection.find_one({"username":username})
 
     if exist_user != None:
@@ -115,10 +119,15 @@ async def get_films_already_seen_by_user(username: str) -> List[str]:
 
     raise HTTPException(
         status_code=HTTP_404_NOT_FOUND,
-        detail="Aucun films déjà vue",
+        detail="utilisateur inexistant: donc aucun films déjà vue!",
     )
 
 async def add_favorite_films(imdb_id: str, username: str) -> UserBase:
+    """
+        username: str, name unique of user
+        imdb_id: str, id of movies from imdb
+        description: add favorites movies to user with username = {username}
+    """
     exist_user = user_collection.find_one({"username":username})
     exist_film = dbfilms.find_one({"id":imdb_id})
 
@@ -138,6 +147,11 @@ async def add_favorite_films(imdb_id: str, username: str) -> UserBase:
             )
 
 async def add_favorite_genres(genres: List[str], username: str) -> UserBase:
+    """
+        username: str, name unique of user
+        genres: List[str], genres from imdb api loveed by user
+        description: add favorites genre to user with username = {username}
+    """
     exist_user = user_collection.find_one({"username":username})
 
     if exist_user != None:
@@ -156,8 +170,7 @@ async def add_favorite_genres(genres: List[str], username: str) -> UserBase:
             else:
                 raise HTTPException(
                         status_code=404, detail=" Genre non valide: ce genre n'existe pas!"
-                    )
-        
+                    )  
     else:
         raise HTTPException(
                 status_code=404, detail=" user not found with this username!"
