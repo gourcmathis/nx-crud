@@ -48,7 +48,7 @@ async def login(user: OAuth2PasswordRequestForm = Depends(UserInLogin)):
         "Authorization",
         value=f"Bearer {token}",
         httponly=True,
-        max_age=1800,
+        max_age=1800, 
         expires=1800,
         samesite="Lax",
         secure=False,
