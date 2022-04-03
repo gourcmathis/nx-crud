@@ -49,7 +49,7 @@ async def get_user(username: str) -> UserInDB:
     else:
         return UserInDB(**row)
 
-async def get_user_by_email(email: str) -> UserBase:
+async def get_user_by_email(email: str) -> UserInDB:
     """
         email: EmailStr, email unique of user
         description: get user by email
