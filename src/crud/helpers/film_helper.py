@@ -3,7 +3,8 @@ from ...models.film_model import FilmBase
 from typing import Optional
 from ...db.connection import user_collection, dbfilms, group_collection
 from ...models.user_model import UserToken
-from .user_helper import get_user#, get_all_group_of_user
+from .user_helper import get_user
+from ...serializers.film_schema import single_film_serializer
 from starlette.exceptions import HTTPException
 
 
@@ -22,8 +23,21 @@ async def add_film_already_seen(imdb_id: str, username: str):
         exist_user.already_seen.append(imdb_id)
 
         user_collection.update_one({"username":username},{"$set":{"already_seen":exist_user.already_seen}})
-        
+
         user = user_collection.find_one({"username":username})
         user = UserToken(**user)
         # return single_user_serializer(user)
         return user
+
+async def get_films_genres(imdb_id:str):
+    film_req = dbfilms.find_one({"id": imdb_id})
+    if film_req is None:
+        raise HTTPException(status_code=404, detail="Film not found")
+    film = single_film_serializer(film_req)
+
+    genres = []
+    for genre in range(len(film["genres"])):
+        # push values to a list of genres
+        genres.append(film["genres"][genre]['value'])
+
+    return genres
