@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 import requests_async as requests
 from ...security.security import JWTBearer
 from ...db.connection import dbfilms
-from ...serializers.film_schema import films_serializer, single_film_serializer
+from ...serializers.film_schema import films_serializer, netflex_single_film_serializer, imdb_films_serializer
 from ...serializers.user_schema import single_user_serializer
 from ...models.film_model import FilmBase
 from ..helpers.film_helper import add_film_already_seen, UserToken
@@ -58,10 +58,13 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     # if the database is empty, we need to call the API to get some films
     if len(jsonFilms) == 0:
         response = await requests.get(f"{callback_url}/api/v1/get_250/")
-        dbfilms.insert_many(response.json())
+        serializer = imdb_films_serializer(response.json())
+        print(serializer)
+        dbfilms.insert_many(serializer)
         return JSONResponse(
             status_code=response.status_code,
             content=response.json(),
+
         )
     return jsonFilms
 
@@ -72,10 +75,10 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     "/id={imdb_id}", response_description="Get a single film from mongodb", response_model=FilmBase, callbacks=callback_router.routes, tags=["Get a film by id from netflexdb"],
 )
 async def get_movie(imdb_id: str):
-    film_req = dbfilms.find_one({"id": imdb_id})
+    film_req = dbfilms.find_one({"imdb_id": imdb_id})
     if film_req is None:
         raise HTTPException(status_code=404, detail="Film not found")
-    film = single_film_serializer(film_req)
+    film = netflex_single_film_serializer(film_req)
     
     # if film doesnt have trailer, make a call to the API to get it
     if film["trailer"] == "":
@@ -115,7 +118,7 @@ async def get_movie(imdb_id: str):
     film_req = dbfilms.find_one({"id": imdb_id})
     if film_req is None:
         raise HTTPException(status_code=404, detail="Film not found")
-    film = single_film_serializer(film_req)
+    film = netflex_single_film_serializer(film_req)
     
     genres = []
     for genre in range(len(film["genres"])):
