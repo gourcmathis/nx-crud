@@ -1,17 +1,12 @@
 import os
-from fastapi import FastAPI, Body, HTTPException, status, APIRouter, Depends
+from fastapi import HTTPException, status, APIRouter
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel, AnyHttpUrl
-from bson import ObjectId
+from pydantic import AnyHttpUrl
 from typing import Optional, List
 from pymongo import MongoClient
-from dotenv import load_dotenv
 import requests_async as requests
-from ...security.security import JWTBearer
 from ...db.connection import dbfilms
 from ...serializers.film_schema import films_serializer, netflex_single_film_serializer, imdb_films_serializer
-from ...serializers.user_schema import single_user_serializer
 from ...models.film_model import FilmBase
 from ..helpers.film_helper import add_film_already_seen, UserToken
 
@@ -105,7 +100,6 @@ async def search_movie(title: str):
 async def film_already_seen(imdb_id: str, username: str) -> UserToken:
     user =  await add_film_already_seen(imdb_id, username)
     if user:
-        # user = single_user_serializer(user)
         return user
 
 # Get a single film by its ID from netflexdb.
