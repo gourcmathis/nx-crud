@@ -5,10 +5,13 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from ...db.connection import user_collection
 from ...serializers.user_schema import users_serializer
-from ...crud.helpers.user_helper import create_user, check_free_username_and_email, get_user_by_email, get_films_already_seen_by_user, get_current_user
 from ...security.security import create_access_token, JWTBearer, ACCESS_TOKEN_EXPIRE_MINUTES
 from ...models.user_model import UserInCreate, UserInResponse, UserToken, UserInLogin, UserBase
 from datetime import timedelta
+from typing import List
+from ...crud.helpers.user_helper import (create_user, check_free_username_and_email, 
+get_user_by_email, get_films_already_seen_by_user, get_current_user, 
+add_favorite_genres, add_favorite_films)
 
 router = APIRouter(
     prefix="/users",
@@ -75,7 +78,21 @@ async def sign_up(user: OAuth2PasswordRequestForm = Depends(UserInCreate)):
 )
 async def already_seen(username: str):
     list_film_already_seen = await get_films_already_seen_by_user(username)
-    # access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
-    # token = await create_access_token(data={"username": user.username, "email": user.email}, expires_delta=access_token_expires)
 
     return list_film_already_seen
+
+@router.post("/addfavorites/film={imdb_id}/of={username}",
+    tags=["ADD favorites"],
+)
+async def add_favorite_films_of(imdb_id: str,username: str):
+    user = await add_favorite_films(imdb_id, username)
+
+    return user
+
+@router.post("/addfavorites/genre={genre}/of={username}",
+    tags=["ADD favorites"],
+)
+async def add_favorite_genre_of(genres: List[str],username: str):
+    user = await add_favorite_genres(genres, username)
+
+    return user

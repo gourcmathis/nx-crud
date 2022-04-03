@@ -1,8 +1,6 @@
-# from datetime import datetime, timedelta
-# from jose import JWTError, jwt
+
 from ...models.user_model import UserInDB, UserBase
 from ...models.group_model import Group
-# from ..security.security import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
 from typing import Optional, List
 from ...db.connection import user_collection, group_collection
 from pydantic import EmailStr

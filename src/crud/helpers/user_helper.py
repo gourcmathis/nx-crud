@@ -1,4 +1,4 @@
-
+from .constants import GENRES
 from ...models.user_model import UserInDB, UserInCreate,UserToken, UserBase
 from ...models.group_model import Group
 from ...models.token_model import TokenPayload
@@ -109,7 +109,7 @@ async def check_free_username_and_email(
 async def get_films_already_seen_by_user(username: str) -> List[str]:
     exist_user = user_collection.find_one({"username":username})
 
-    if exist_user:
+    if exist_user != None:
         user = UserBase(**exist_user)
         return  user.already_seen
 
@@ -117,6 +117,51 @@ async def get_films_already_seen_by_user(username: str) -> List[str]:
         status_code=HTTP_404_NOT_FOUND,
         detail="Aucun films déjà vue",
     )
+
+async def add_favorite_films(imdb_id: str, username: str) -> UserBase:
+    exist_user = user_collection.find_one({"username":username})
+    exist_film = dbfilms.find_one({"id":imdb_id})
+
+    if exist_user != None and exist_film != None:
+        user = UserBase(**exist_user)
+        if imdb_id not in user.favorite_films:
+            user.favorite_films.append(imdb_id)
+            user_collection.update_one({"username":username}, {"$set": {"favorite_films":user.favorite_films}})
+            return user
+        else:
+            raise HTTPException(
+                status_code=422, detail=" films déjà aimer par cet utilisateur"
+            )
+    else:
+        raise HTTPException(
+                status_code=404, detail=" user not found with this username or film does'nt exist!"
+            )
+
+async def add_favorite_genres(genres: List[str], username: str) -> UserBase:
+    exist_user = user_collection.find_one({"username":username})
+
+    if exist_user != None:
+        user = UserBase(**exist_user)
+        for genre in genres:
+            if genre in GENRES:
+                #add only if genre is not already ine the liste
+                if genre not in user.favorite_genres:
+                    user.favorite_genres.append(genre)
+                    user_collection.update_one({"username":username}, {"$set": {"favorite_genres":user.favorite_genres}})
+                    return user
+                else:
+                    raise HTTPException(
+                        status_code=422, detail=" Genre(s) déjà aimer par cet utilisateur"
+                    )
+            else:
+                raise HTTPException(
+                        status_code=404, detail=" Genre non valide: ce genre n'existe pas!"
+                    )
+        
+    else:
+        raise HTTPException(
+                status_code=404, detail=" user not found with this username!"
+            )
 
 
 class OAuth2PasswordBearerCookie(OAuth2):

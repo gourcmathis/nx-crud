@@ -1,0 +1,1 @@
+GENRES = ["Action", "Crime", "Fantasy", "Horror", "Romance", "Adventure", "Drama", "Sci-Fi", "Mystery", "Comedy", "Thriller", "Biography", "History", "Animation", "War", "Music","Western"]
