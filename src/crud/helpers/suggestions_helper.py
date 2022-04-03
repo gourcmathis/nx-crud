@@ -17,21 +17,23 @@ from starlette.status import (
 
 async def suggestions(groupname: str) -> List[FilmBase]:
     exist_group = group_collection.find_one({"groupname":groupname})
-    list_films_suggested =  []
+    print(exist_group)
     if exist_group != None:
         group = Group(**exist_group)
     
         list_films_not_already_seen = dbfilms.find({ "id": { "$nin": group.aready_seen_by_allmember } })
         list_films_liked = dbfilms.find({ "id": { "$in": group.list_favorites_films } })
         list_films_with_genre_liked = []
-        for genre in range(len(group.list_favorites_genres)):
-            list_films_with_genre_liked.append(dbfilms.find_one({ "genres": { "$eq": group.list_favorites_genres[genre] } }))
+        # for genre in range(len(group.list_favorites_genres)):
+        list_films_with_genre_liked = dbfilms.find({ "genres":{"$in": group.list_favorites_genres} })
+
         print(list_films_with_genre_liked)
-    
-    raise HTTPException(
-            status_code=404,
-            detail="Group inexistant!!",
-        )
+        return films_serializer(list_films_with_genre_liked)
+    else:
+        raise HTTPException(
+                status_code=404,
+                detail="Group inexistant!!",
+            )
 
         
 

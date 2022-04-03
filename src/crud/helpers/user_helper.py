@@ -159,10 +159,18 @@ async def add_favorite_genres(genres: List[str], username: str) -> UserBase:
         user = UserBase(**exist_user)
         for genre in genres:
             if genre in GENRES:
-                #add only if genre is not already ine the liste
+                #add only if genre is not already in the list
                 if genre not in user.favorite_genres:
                     user.favorite_genres.append(genre)
                     user_collection.update_one({"username":username}, {"$set": {"favorite_genres":user.favorite_genres}})
+                    for grouname in user.list_group:
+                        group = group_collection.find_one({"groupname": grouname})
+                        grp = Group(**group)
+                        
+                    for genr in user.favorite_genres:
+                        grp.list_favorites_genres.append(genr)
+
+                    group_collection.update_one({"groupname": grouname}, {"$set": {"list_favorites_genres": grp.list_favorites_genres}})
                     return user
                 else:
                     raise HTTPException(

@@ -4,7 +4,6 @@ from typing import Optional
 from ...db.connection import user_collection, dbfilms, group_collection
 from ...models.user_model import UserToken
 from .user_helper import get_user
-from ...serializers.film_schema import single_film_serializer
 from starlette.exceptions import HTTPException
 from ...serializers.film_schema import netflex_single_film_serializer
 

@@ -59,7 +59,6 @@ async def list_movies(callback_url: Optional[AnyHttpUrl] = API_PATH):
     if len(jsonFilms) == 0:
         response = await requests.get(f"{callback_url}/api/v1/get_250/")
         serializer = imdb_films_serializer(response.json())
-        print(serializer)
         dbfilms.insert_many(serializer)
         return JSONResponse(
             status_code=response.status_code,
