@@ -35,6 +35,11 @@ async def check_groupname_exist_already(groupname: str):
         )
 
 async def check_member_already_in_group(username: str,groupname: str):
+    """
+        groupname: str, name unique of group
+        username: str, name unique of user
+        description: verify if a member is already in group with the groupname = {groupname}
+    """
     exist_group = await get_groupby_groupname(groupname)
 
     exist_user = user_collection.find_one({"username": username})
@@ -48,15 +53,15 @@ async def check_member_already_in_group(username: str,groupname: str):
     else:
         raise HTTPException(
             status_code=HTTP_404_NOT_FOUND,
-            detail="Ce groupe n'existe pas!",
+            detail="Ce groupe ou cet utilisateur n'existe pas!",
         )
 
 async def add_member(username: str,groupname: str) -> Group:
         """
-        username: sername of user to add
-        groupname: str, name unique of group
-        description: add member in group by his username
-        return: Group updated
+            username: sername of user to add
+            groupname: str, name unique of group
+            description: add member in group by his username
+            return: Group updated
         """
 
         exist_group = group_collection.find_one({"groupname": groupname})
@@ -65,14 +70,45 @@ async def add_member(username: str,groupname: str) -> Group:
         if exist_group and exist_user:
             user  = UserInDB(**exist_user)
             group = Group(**exist_group)
+
+            #update list of member of group
             group.listmember.append(user.username)
+            
+            #update list of group of user
             user.list_group.append(group.groupname)
-            for film in user.already_seen:
-                group.aready_seen_by_allmember.append(film)
+            
+            #update list films already seen in groupe
+            for film_seen in user.already_seen:
+                group.aready_seen_by_allmember.append(film_seen)
+            
+            #update list favorites movies in groupe
+            for film in user.favorite_films:
+                group.list_favorites_films.append(film)
+           
+            #update list favorites genres in groupe
+            for genre in user.favorite_genres:
+                group.list_favorites_genres.append(genre)
+
+            #update list of member of group in database
             group_collection.update_one({ "groupname": groupname },{"$set": {"listmember": group.listmember}})
+
+            #update list films already seen in groupe in database
             group_collection.update_one({ "groupname": groupname },{"$set": {"aready_seen_by_allmember": group.aready_seen_by_allmember}})
+
+            #update list favorites movies in groupe in database
+            group_collection.update_one({ "groupname": groupname },{"$set": {"list_favorites_films": group.list_favorites_films}})
+
+            #update list favorites genres in groupe in database
+            group_collection.update_one({ "groupname": groupname },{"$set": {"list_favorites_genres": group.list_favorites_genres}})
+
+            #update list of group of user in database
             user_collection.update_one({"username":username}, {"$set": {"list_group":user.list_group}})
             return group
+        else:
+            raise HTTPException(
+            status_code=HTTP_404_NOT_FOUND,
+            detail="Groupe ou utilisateur inexistant!",
+    )
 
 async def add_many_member(list_username: List[str], groupname: str) -> Group:
     """
@@ -103,3 +139,7 @@ async def get_all_members_group(groupname: str) -> List[UserBase]:
             user = UserBase(**user_bdd)
             list_users.append(user)
         return list_users
+    raise HTTPException(
+        status_code=HTTP_404_NOT_FOUND,
+        detail="Groupe inexistant!",
+    )

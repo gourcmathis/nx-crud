@@ -21,7 +21,17 @@ async def suggestions(groupname: str) -> List[FilmBase]:
         group = Group(**exist_group)
     
         list_films_not_already_seen = dbfilms.find({ "id": { "$nin": group.aready_seen_by_allmember } })
-        # lis_films_with_genre_liked = dbfilms.find({ "imdb_id": { "$nin": group.aready_seen_by_allmember } })
+        list_films_liked = dbfilms.find({ "id": { "$in": group.list_favorites_films } })
+        list_films_with_genre_liked = dbfilms.find({ "genres.value": { "$in": group.list_favorites_genres } })
+        # ici trier les résultats puis faire un return, ensuite dans le endpoints suggestions.py faire la route des suggestions
+    raise HTTPException(
+            status_code=404,
+            detail="Groupe inexistant: Donc suggestion impossible!",
+        )
+
+        
+
+
 
 
 

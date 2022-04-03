@@ -43,14 +43,28 @@ class UserToken(UserBase):
             group: Group, group for creation
             description: insert a group in database and add the creator like first member
         """
+        #specify author of group
         group.author=self.username
-        group.listmember.append(self.username)
-        self.list_group.append(group)
-        grp = Group(**group.dict())
-        
-        group_collection.insert_one(grp.dict())
 
-        return grp
+        #update list of member 
+        group.listmember.append(self.username)
+
+        for film in self.favorite_films:
+            group.list_favorites_films.append(film)
+        
+        for genre in self.favorite_genres:
+            group.list_favorites_genres.append(genre)
+
+        #update list of group
+        self.list_group.append(group.groupname)
+        
+        #updat elist of group in database
+        user_collection.update_one({"username":self.username}, {"$set":{"list_group":self.list_group}})
+        
+        #crete group
+        group_collection.insert_one(group.dict())
+
+        return group
 
 class UserInResponse(RWModel):
     user: UserToken
