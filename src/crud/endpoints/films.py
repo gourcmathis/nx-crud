@@ -106,3 +106,20 @@ async def film_already_seen(imdb_id: str, username: str) -> UserToken:
     if user:
         # user = single_user_serializer(user)
         return user
+
+# Get a single film by its ID from netflexdb.
+@router.get(
+    "/genres/id={imdb_id}", response_description="Get genre from a film", tags=["Get a film's genres"],
+)
+async def get_movie(imdb_id: str):
+    film_req = dbfilms.find_one({"id": imdb_id})
+    if film_req is None:
+        raise HTTPException(status_code=404, detail="Film not found")
+    film = single_film_serializer(film_req)
+    
+    genres = []
+    for genre in range(len(film["genres"])):
+        # push values to a list of genres
+        genres.append(film["genres"][genre]['value'])
+
+    return genres

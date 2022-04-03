@@ -25,7 +25,7 @@ class UserInDB(UserBase):
     
     async def change_password(self, password: str):
         self.salt = generate_salt()
-        self.password =  get_password_hash(self.salt + password)
+        self.password = get_password_hash(self.salt + password)
 
 
 class UserInCreate(RWModel):
