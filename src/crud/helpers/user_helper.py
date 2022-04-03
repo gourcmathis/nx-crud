@@ -1,25 +1,22 @@
 from .constants import GENRES
-from ...models.user_model import UserInDB, UserInCreate,UserToken, UserBase
+from ...models.user_model import UserInDB, UserInCreate, UserBase
 from ...models.group_model import Group
 from ...models.token_model import TokenPayload
 from ...serializers.user_schema import single_user_serializer
-from ...security.security import SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM
+from ...security.security import SECRET_KEY, ALGORITHM
 from tortoise.exceptions import DoesNotExist
 from fastapi import Depends, HTTPException, Request
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
-from bson.objectid import ObjectId
 from ...db.connection import user_collection, dbfilms, group_collection
 from pydantic import EmailStr
 from jose import JWTError, jwt
 from typing import Optional, List
 from starlette.exceptions import HTTPException
-from fastapi import Depends, Header
 from starlette.status import (
     HTTP_422_UNPROCESSABLE_ENTITY,
     HTTP_404_NOT_FOUND,
-    HTTP_403_FORBIDDEN,
 )
 
 JWT_TOKEN_PREFIX = "Token"
@@ -159,10 +156,18 @@ async def add_favorite_genres(genres: List[str], username: str) -> UserBase:
         user = UserBase(**exist_user)
         for genre in genres:
             if genre in GENRES:
-                #add only if genre is not already ine the liste
+                #add only if genre is not already in the list
                 if genre not in user.favorite_genres:
                     user.favorite_genres.append(genre)
                     user_collection.update_one({"username":username}, {"$set": {"favorite_genres":user.favorite_genres}})
+                    for grouname in user.list_group:
+                        group = group_collection.find_one({"groupname": grouname})
+                        grp = Group(**group)
+
+                    for genr in user.favorite_genres:
+                        grp.list_favorites_genres.append(genr)
+
+                    group_collection.update_one({"groupname": grouname}, {"$set": {"list_favorites_genres": grp.list_favorites_genres}})
                     return user
                 else:
                     raise HTTPException(

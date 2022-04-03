@@ -1,6 +1,5 @@
-from .rwmodel import RWModel, DBModelMixin
+from .rwmodel import RWModel
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr, AnyUrl, Field
 
 class Group(RWModel):
     groupname: str

@@ -1,8 +1,7 @@
-from fastapi import FastAPI, Body, HTTPException, status, APIRouter, Depends
-from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from fastapi import HTTPException, APIRouter, Depends
+from starlette.status import HTTP_201_CREATED
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from fastapi.security import OAuth2PasswordRequestForm
 from ...db.connection import user_collection
 from ...serializers.user_schema import users_serializer
 from ...security.security import create_access_token, JWTBearer, ACCESS_TOKEN_EXPIRE_MINUTES
@@ -55,8 +54,6 @@ async def login(user: UserInLogin):
         samesite="Lax",
         secure=False,
     )
-
-    # return UserInResponse(user=UserToken(**usr.dict(), token=token))
     return response
 
 
