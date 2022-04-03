@@ -20,7 +20,7 @@ async def suggestions(groupname: str) -> List[FilmBase]:
     if exist_group != None:
         group = Group(**exist_group)
     
-        list_films_not_already_seen = dbfilms.find({ "imdb_id": { "$nin": group.aready_seen_by_allmember } })
+        list_films_not_already_seen = dbfilms.find({ "id": { "$nin": group.aready_seen_by_allmember } })
         # lis_films_with_genre_liked = dbfilms.find({ "imdb_id": { "$nin": group.aready_seen_by_allmember } })
 
 
